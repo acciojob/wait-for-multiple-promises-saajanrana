@@ -3,14 +3,14 @@
 function promise1(){
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            resolve("promisse1");
+          document.getElementsById("one").innerHTM=  resolve("promisse1");
         }, 1000);
        });
 }
 function promise2(){
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            resolve("promise2");
+        document.getElementsById("one").innerHTM=resolve("promise2");
             
         }, 2000);
        });
@@ -18,7 +18,7 @@ function promise2(){
        function promise3(){
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                resolve("promise3");
+              document.getElementsById("one").innerHTM =  resolve("promise3");
             }, 3000);
            });
     
