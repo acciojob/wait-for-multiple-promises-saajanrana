@@ -1,59 +1,56 @@
-function getRandomDelay() {
-  return Math.floor(Math.random() * 3000) + 1000; // Random time between 1 and 3 seconds in milliseconds
+function getRandomTime() {
+  return Math.floor(Math.random() * 3000) + 1000; 
 }
 
-function createPromise(delay) {
-  return new Promise(resolve => {
+function createPromise() {
+  return new Promise((resolve) => {
+    const time = getRandomTime();
     setTimeout(() => {
-      resolve(delay / 1000); // Resolving with time taken in seconds
-    }, delay);
+      resolve(time);
+    }, time);
   });
 }
 
-async function populateTable() {
-  const loadingRow = document.createElement('tr');
-  const loadingCell = document.createElement('td');
+const loadingRow = document.createElement('tr');
+const loadingCell = document.createElement('td');
+loadingCell.setAttribute('colspan', '2');
+loadingCell.textContent = 'Loading...';
 
-  loadingCell.textContent = 'Loading...';
-  loadingCell.colSpan = 2;
+const table = document.getElementById('myTable');
+const loading = document.getElementById('loading');
+table.appendChild(loadingRow);
 
-  loadingRow.appendChild(loadingCell);
-  outputTable.appendChild(loadingRow);
+const promises = [createPromise(), createPromise(), createPromise()];
 
-  const promises = [
-    createPromise(getRandomDelay()),
-    createPromise(getRandomDelay()),
-    createPromise(getRandomDelay())
-  ];
+Promise.all(promises)
+  .then((results) => {
+    loading.remove();
+    results.forEach((time, index) => {
+      const row = document.createElement('tr');
 
-  const results = await Promise.all(promises);
+      const promiseCell = document.createElement('td');
+      promiseCell.textContent = `Promise ${index + 1}`;
+      row.appendChild(promiseCell);
 
-  outputTable.removeChild(loadingRow);
+      const timeCell = document.createElement('td');
+      const seconds = (time / 1000).toFixed(3);
+      timeCell.textContent = seconds;
+      row.appendChild(timeCell);
 
-  results.forEach((time, index) => {
-    const row = document.createElement('tr');
-    const promiseNameCell = document.createElement('td');
-    const timeTakenCell = document.createElement('td');
+      table.appendChild(row);
+    });
 
-    promiseNameCell.textContent = `Promise ${index + 1}`;
-    timeTakenCell.textContent = time.toFixed(3);
+    const totalRow = document.createElement('tr');
 
-    row.appendChild(promiseNameCell);
-    row.appendChild(timeTakenCell);
-    outputTable.appendChild(row);
+    const totalCell = document.createElement('td');
+    totalCell.textContent = 'Total';
+    totalRow.appendChild(totalCell);
+
+    const totalTimeCell = document.createElement('td');
+    const totalTime = results.reduce((total, time) => total + time, 0);
+    const totalSeconds = (totalTime / 1000).toFixed(3);
+    totalTimeCell.textContent = totalSeconds;
+    totalRow.appendChild(totalTimeCell);
+
+    table.appendChild(totalRow);
   });
-
-  const totalRow = document.createElement('tr');
-  const totalPromiseNameCell = document.createElement('td');
-  const totalTimeTakenCell = document.createElement('td');
-
-  totalPromiseNameCell.textContent = 'Total';
-  totalTimeTakenCell.textContent = results.reduce((sum, time) => sum + time, 0).toFixed(3);
-
-  totalRow.appendChild(totalPromiseNameCell);
-  totalRow.appendChild(totalTimeTakenCell);
-  outputTable.appendChild(totalRow);
-}
-
-const outputTable = document.getElementById('output');
-populateTable();
