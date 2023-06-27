@@ -1,19 +1,59 @@
-let prom1 = new Promise((resolve,reject)=>{
-	resolve("")
-},(Math.floor(Math.random() * 3000)))
+function getRandomDelay() {
+  return Math.floor(Math.random() * 3000) + 1000; // Random time between 1 and 3 seconds in milliseconds
+}
 
-let prom2 = new Promise((resolve,reject)=>{
-	resolve("")
-},(Math.floor(Math.random() * 3000)))
+function createPromise(delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(delay / 1000); // Resolving with time taken in seconds
+    }, delay);
+  });
+}
 
-let prom3 = new Promise((resolve,reject)=>{
-	resolve("")
-},(Math.floor(Math.random() * 3000)))
+async function populateTable() {
+  const loadingRow = document.createElement('tr');
+  const loadingCell = document.createElement('td');
 
-window.promises = [prom1, prom2, prom3 ];
-Promise.all	(promises)
-.then((value)=>{
-	document.getElementById("output").innerText = value ;
-})
-.catch((err)=>{
-	console.log("error");
+  loadingCell.textContent = 'Loading...';
+  loadingCell.colSpan = 2;
+
+  loadingRow.appendChild(loadingCell);
+  outputTable.appendChild(loadingRow);
+
+  const promises = [
+    createPromise(getRandomDelay()),
+    createPromise(getRandomDelay()),
+    createPromise(getRandomDelay())
+  ];
+
+  const results = await Promise.all(promises);
+
+  outputTable.removeChild(loadingRow);
+
+  results.forEach((time, index) => {
+    const row = document.createElement('tr');
+    const promiseNameCell = document.createElement('td');
+    const timeTakenCell = document.createElement('td');
+
+    promiseNameCell.textContent = `Promise ${index + 1}`;
+    timeTakenCell.textContent = time.toFixed(3);
+
+    row.appendChild(promiseNameCell);
+    row.appendChild(timeTakenCell);
+    outputTable.appendChild(row);
+  });
+
+  const totalRow = document.createElement('tr');
+  const totalPromiseNameCell = document.createElement('td');
+  const totalTimeTakenCell = document.createElement('td');
+
+  totalPromiseNameCell.textContent = 'Total';
+  totalTimeTakenCell.textContent = results.reduce((sum, time) => sum + time, 0).toFixed(3);
+
+  totalRow.appendChild(totalPromiseNameCell);
+  totalRow.appendChild(totalTimeTakenCell);
+  outputTable.appendChild(totalRow);
+}
+
+const outputTable = document.getElementById('output');
+populateTable();
