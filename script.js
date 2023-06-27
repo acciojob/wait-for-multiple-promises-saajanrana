@@ -1,56 +1,56 @@
-function getRandomTime() {
-  return Math.floor(Math.random() * 3000) + 1000; 
+let resultArray = [];
+const loadingElement = document.createElement("tr");
+loadingElement.id = "loading";
+loadingElement.innerHTML = `<td colspan="2">Loading...</td>`;
+const tbodyElement = document.getElementById("output");
+tbodyElement.append(loadingElement);
+
+function appendFunc(name, time) {
+  resultArray.push({ name, time });
 }
 
-function createPromise() {
-  return new Promise((resolve) => {
-    const time = getRandomTime();
+let promises = [];
+
+// Create three promises, each resolving after a random time between 1 and 3 seconds
+for (let i = 1; i <= 3; i++) {
+  let start = new Date().getTime();
+  let randomTime = Math.floor(Math.random() * 3000) + 1000;
+
+  let promise = new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(time);
-    }, time);
+      resolve();
+      let end = new Date().getTime();
+      appendFunc(`Promise ${i}`, (end - start) / 1000);
+    }, randomTime);
   });
+
+  promises.push(promise);
 }
-
-const loadingRow = document.createElement('tr');
-const loadingCell = document.createElement('td');
-loadingCell.setAttribute('colspan', '2');
-loadingCell.textContent = 'Loading...';
-
-const table = document.getElementById('myTable');
-const loading = document.getElementById('loading');
-table.appendChild(loadingRow);
-
-const promises = [createPromise(), createPromise(), createPromise()];
 
 Promise.all(promises)
-  .then((results) => {
-    loading.remove();
-    results.forEach((time, index) => {
-      const row = document.createElement('tr');
+  .then(() => {
+    loadingElement.remove();
 
-      const promiseCell = document.createElement('td');
-      promiseCell.textContent = `Promise ${index + 1}`;
-      row.appendChild(promiseCell);
+    for (let i = 0; i < resultArray.length; i++) {
+      let resultTR = document.createElement("tr");
+      resultTR.innerHTML = `
+        <td>${resultArray[i].name}</td>
+        <td>${resultArray[i].time}</td>
+      `;
+      tbodyElement.append(resultTR);
+    }
 
-      const timeCell = document.createElement('td');
-      const seconds = (time / 1000).toFixed(3);
-      timeCell.textContent = seconds;
-      row.appendChild(timeCell);
+    // Calculate the total time taken
+    let totalTime = resultArray.reduce((sum, result) => sum + result.time, 0);
 
-      table.appendChild(row);
-    });
-
-    const totalRow = document.createElement('tr');
-
-    const totalCell = document.createElement('td');
-    totalCell.textContent = 'Total';
-    totalRow.appendChild(totalCell);
-
-    const totalTimeCell = document.createElement('td');
-    const totalTime = results.reduce((total, time) => total + time, 0);
-    const totalSeconds = (totalTime / 1000).toFixed(3);
-    totalTimeCell.textContent = totalSeconds;
-    totalRow.appendChild(totalTimeCell);
-
-    table.appendChild(totalRow);
+    // Add a row for the total time
+    let totalTR = document.createElement("tr");
+    totalTR.innerHTML = `
+      <td>Total</td>
+      <td>${totalTime.toFixed(3)}</td>
+    `;
+    tbodyElement.append(totalTR);
+  })
+  .catch((error) => {
+    console.error(error);
   });
